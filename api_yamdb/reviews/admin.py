@@ -8,7 +8,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = ('title', 'text', 'score',)
     search_fields = ('text',)
 
-    
+
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('title', 'review', 'text',)
