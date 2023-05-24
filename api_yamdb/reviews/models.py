@@ -27,9 +27,9 @@ class Title(models.Model):
         validators=[MaxValueValidator(dt.now().year)],
     )
     description = models.TextField(verbose_name='Описание',)
-    genre = models.ManyToManyField(Genres, verbose_name='Slug жанра',)
+    genre = models.ManyToManyField(Genre, verbose_name='Slug жанра',)
     category = models.ForeignKey(
-        Categories, on_delete=models.SET_NULL, verbose_name='Slug категории',
+        Category, on_delete=models.SET_NULL, verbose_name='Slug категории',
         blank=True, null=True,
     )
 
@@ -39,7 +39,7 @@ class Title(models.Model):
 
 class Review(models.Model):
     title = models.OneToOneField(
-        'Title', on_delete=models.CASCADE, verbose_name='ID произведения',
+        Title, on_delete=models.CASCADE, verbose_name='ID произведения',
         related_name='reviews',
     )
     text = models.TextField(verbose_name='Текст отзыва',)
@@ -54,7 +54,7 @@ class Review(models.Model):
 
 class Comment(models.Model):
     title = models.ForeignKey(
-        'Title', on_delete=models.CASCADE, verbose_name='ID произведения',
+        Title, on_delete=models.CASCADE, verbose_name='ID произведения',
         related_name='comments',
     )
     review = models.ForeignKey(
