@@ -50,7 +50,7 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.title} ({self.pk})'
-      
+
 
 class Comment(models.Model):
     title = models.ForeignKey(
@@ -65,5 +65,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'{self.title} ({self.pk})'
-
-
