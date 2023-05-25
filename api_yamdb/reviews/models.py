@@ -45,8 +45,26 @@ class Review(models.Model):
     text = models.TextField(verbose_name='Текст отзыва',)
     score = models.IntegerField(
         verbose_name='Оценка',
+        default=0,
         validators=[MinValueValidator(1), MaxValueValidator(10)],
     )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата отзыва',
+        auto_now_add=True,
+        db_index=True
+    )
+
+    class Meta:
+        ordering = ['-pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'], name="unique_review")
+        ]
 
     def __str__(self):
         return f'{self.title} ({self.pk})'
@@ -62,6 +80,16 @@ class Comment(models.Model):
         related_name='comments',
     )
     text = models.TextField(verbose_name='Текст комментария',)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    pub_date = models.DateTimeField(
+        related_name='Дата комментария',
+        auto_now_add=True,
+        db_index=True
+    )
 
     def __str__(self):
         return f'{self.title} ({self.pk})'
