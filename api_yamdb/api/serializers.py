@@ -26,13 +26,6 @@ class ReviewSerializer(ModelSerializer):
             )
         ]   
    
-    def validate_score(self, value):
-        if 0 >= value >= 10:
-            raise ValidationError(
-                'Оценка в диапазоне от 1 до 10 включительно'
-            )
-        return value
-
 
 class CommentSerializer(ModelSerializer):
     """Комментарии к отзывам"""
