@@ -1,5 +1,6 @@
 from rest_framework.serializers import (ModelSerializer, SlugRelatedField, CurrentUserDefault,
-                                        ValidationError,) 
+                                        ValidationError,)
+from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Comment, Review
 
@@ -17,18 +18,14 @@ class ReviewSerializer(ModelSerializer):
         fields = '__all__'
         read_only_fields = ['title']
 
-    def validate(self, data):
-        if self.context['request'].method == 'POST':
-            title_id = (
-                self.context['request'].parser_context['kwargs']['title_id']
+    validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=['title', 'author'],
+                message='Нельзя оставить отзыв на одно произведение дважды'
             )
-            author = self.context['request'].user
-            if author.reviews.filter(title_id=title_id).exists():
-                raise ValidationError(
-                    'Нельзя оставить отзыв на одно произведение дважды'
-                )
-        return data
-
+        ]   
+   
     def validate_score(self, value):
         if 0 >= value >= 10:
             raise ValidationError(
