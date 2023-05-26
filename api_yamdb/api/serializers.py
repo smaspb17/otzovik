@@ -1,15 +1,14 @@
-from rest_framework import serializers
+from rest_framework.serializers import (ModelSerializer, SlugRelatedField, CurrentUserDefault,
+                                        ValidationError,) 
 
 from reviews.models import Comment, Review
 
-...
 
-
-class ReviewSerializer(serializers.ModelSerializer):
+class ReviewSerializer(ModelSerializer):
     """Отзывы произведений"""
-    author = serializers.SlugRelatedField(
+    author = SlugRelatedField(
         slug_field='username',
-        default=serializers.CurrentUserDefault(),
+        default=CurrentUserDefault(),
         read_only=True
     )
 
@@ -25,24 +24,24 @@ class ReviewSerializer(serializers.ModelSerializer):
             )
             author = self.context['request'].user
             if author.reviews.filter(title_id=title_id).exists():
-                raise serializers.ValidationError(
+                raise ValidationError(
                     'Нельзя оставить отзыв на одно произведение дважды'
                 )
         return data
 
     def validate_score(self, value):
         if 0 >= value >= 10:
-            raise serializers.ValidationError(
+            raise ValidationError(
                 'Оценка в диапазоне от 1 до 10 включительно'
             )
         return value
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class CommentSerializer(ModelSerializer):
     """Комментарии к отзывам"""
 
-    author = serializers.SlugRelatedField(slug_field='username',
-                                          read_only=True)
+    author = SlugRelatedField(slug_field='username',
+                              read_only=True)
 
     class Meta:
         model = Comment
