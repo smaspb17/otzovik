@@ -1,23 +1,53 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.viewsets import ModelViewSet
+from rest_framework import serializers
+from rest_framework import filters, viewsets
+from rest_framework.viewsets import mixins, ModelViewSet
 
-from .serializers import CommentSerializer, ReviewSerializer
-from reviews.models import Review, Title 
+from django_filters.rest_framework import DjangoFilterBackend
+
+from .filters import TitleFilter
+from reviews.models import Category, Genre, Review, Title
 
 
-class TitleViewSet(ModelViewSet):
+class CreateListDestroyViewSet(mixins.CreateModelMixin,
+                               mixins.ListModelMixin,
+                               mixins.DestroyModelMixin,
+                               viewsets.GenericViewSet):
+    """Общий класс для CategoryViewSet и GenreViewSet."""
     pass
 
 
-class CategoryViewSet(ModelViewSet):
-    pass
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    permission_classes = ()
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleReadSerializer
+        return TitleWriteSerializer
 
 
-class GenreViewSet(ModelViewSet):
-    pass
+class CategoryViewSet(CreateListDestroyViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = ()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
-class ReviewViewSet(ModelViewSet):
+class GenreViewSet(CreateListDestroyViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = ()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = ()
 
@@ -34,7 +64,7 @@ class ReviewViewSet(ModelViewSet):
         serializer.save(author=self.request.user, title=title)
 
 
-class CommentViewSet(ModelViewSet):
+class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = ()
 
