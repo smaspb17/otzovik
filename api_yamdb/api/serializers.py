@@ -58,8 +58,7 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         fields = '__all__'
         model = Title
 
-
-class ReviewSerializer(serializers.ModelSerializer):
+class ReviewSerializer(ModelSerializer):
     """Отзывы произведений"""
     author = SlugRelatedField(
         slug_field='username',
@@ -81,7 +80,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     ]
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class CommentSerializer(ModelSerializer):
     """Комментарии к отзывам"""
     author = SlugRelatedField(slug_field='username',
                               read_only=True)

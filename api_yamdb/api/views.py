@@ -47,7 +47,7 @@ class GenreViewSet(CreateListDestroyViewSet):
     lookup_field = 'slug'
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = ()
 
@@ -64,7 +64,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, title=title)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = ()
 
