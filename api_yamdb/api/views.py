@@ -3,11 +3,10 @@ from rest_framework import serializers
 from rest_framework import filters, viewsets
 from rest_framework.viewsets import mixins, ModelViewSet
 
+from django_filters.rest_framework import DjangoFilterBackend
 
-
-
-
-from .serializers import CommentSerializer, ReviewSerializer
+from .filters import TitleFilter
+from reviews.models import Category, Genre, Review, Title
 
 
 class CreateListDestroyViewSet(mixins.CreateModelMixin,
