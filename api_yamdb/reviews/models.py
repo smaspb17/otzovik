@@ -28,7 +28,10 @@ class User(AbstractUser):
 
     bio = TextField(verbose_name='Биография')
     role = CharField(
-        verbose_name='Роль', choices=Role.choices, default=Role.USER
+        verbose_name='Роль',
+        max_length=len(max(Role.values, key=len)),
+        choices=Role.choices,
+        default=Role.USER,
     )
 
     class Meta:
@@ -82,6 +85,7 @@ class Title(Model):
         verbose_name='Slug категории',
         blank=True,
         null=True,
+        related_name='titles',
     )
 
     class Meta:
