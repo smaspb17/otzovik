@@ -32,14 +32,8 @@ router_v1.register(
     prefix=r'title/(?P<title_id>[\d]+)/review',
     viewset=ReviewViewSet,
     basename='review',
-    prefix=r'title/(?P<title_id>[\d]+)/review',
-    viewset=ReviewViewSet,
-    basename='review',
 )
 router_v1.register(
-    prefix=r'title/(?P<title_id>[\d]+)/review/(?P<review_id>[\d]+)/comment',
-    viewset=CommentViewSet,
-    basename='comment',
     prefix=r'title/(?P<title_id>[\d]+)/review/(?P<review_id>[\d]+)/comment',
     viewset=CommentViewSet,
     basename='comment',
