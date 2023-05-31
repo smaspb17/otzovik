@@ -1,33 +1,38 @@
-from rest_framework import serializers
 from django.db.models import Avg
+from rest_framework.serializers import (
+    CurrentUserDefault,
+    ModelSerializer,
+    SerializerMethodField,
+    SlugRelatedField,
+)
 from rest_framework.validators import UniqueTogetherValidator
 
-from reviews.models import Category, Comment, Genre, Title, Review
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(ModelSerializer):
     """Сериализатор Category."""
+
     class Meta:
-        exclude = ('id', )
+        exclude = ('id',)
         model = Category
         lookup_field = 'slug'
 
 
-class GenreSerializer(serializers.ModelSerializer):
+class GenreSerializer(ModelSerializer):
     """Сериализатор Genre."""
+
     class Meta:
-        exclude = ('id', )
+        exclude = ('id',)
         model = Genre
         lookup_field = 'slug'
 
 
 class TitleReadSerializer(ModelSerializer):
     """Сериализатор для чтения модели Title."""
+
     category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(
-        read_only=True,
-        many=True
-    )
+    genre = GenreSerializer(read_only=True, many=True)
     rating = SerializerMethodField()
 
     class Meta:
@@ -37,33 +42,32 @@ class TitleReadSerializer(ModelSerializer):
     def get_rating(self, obj):
         if obj.reviews.count() == 0:
             return None
-        review = Review.objects.filter(
-            title=obj).aggregate(rating=Avg('score'))
+        review = Review.objects.filter(title=obj).aggregate(
+            rating=Avg('score')
+        )
         return review['rating']
 
 
-class TitleWriteSerializer(serializers.ModelSerializer):
+class TitleWriteSerializer(ModelSerializer):
     """Сериализатор для записи модели Title."""
+
     category = SlugRelatedField(
-        queryset=Category.objects.all(),
-        slug_field='slug'
+        queryset=Category.objects.all(), slug_field='slug'
     )
     genre = SlugRelatedField(
-        queryset=Genre.objects.all(),
-        slug_field='slug',
-        many=True
+        queryset=Genre.objects.all(), slug_field='slug', many=True
     )
 
     class Meta:
         fields = '__all__'
         model = Title
 
+
 class ReviewSerializer(ModelSerializer):
     """Отзывы произведений"""
+
     author = SlugRelatedField(
-        slug_field='username',
-        default=CurrentUserDefault(),
-        read_only=True
+        slug_field='username', default=CurrentUserDefault(), read_only=True
     )
 
     class Meta:
@@ -75,15 +79,15 @@ class ReviewSerializer(ModelSerializer):
         UniqueTogetherValidator(
             queryset=Review.objects.all(),
             fields=['title', 'author'],
-            message='Нельзя оставить отзыв на одно произведение дважды'
+            message='Нельзя оставить отзыв на одно произведение дважды',
         )
     ]
 
 
 class CommentSerializer(ModelSerializer):
     """Комментарии к отзывам"""
-    author = SlugRelatedField(slug_field='username',
-                              read_only=True)
+
+    author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
         model = Comment
