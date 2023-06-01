@@ -24,6 +24,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitleFilter
+from .permissions import (
+    IsAdmin,
+    IsAuthorOrReadOnly,
+    IsModerator,
+)
 from .serializers import (
     CategorySerializer,
     CommentSerializer,
@@ -78,6 +83,7 @@ class GenreViewSet(CreateListDestroyViewSet):
 
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = (IsAdmin | IsModerator | IsAuthorOrReadOnly,)
 
     def get_queryset(self):
         title = get_object_or_404(model=Title, id=self.kwargs.get('title_id'))
@@ -90,6 +96,7 @@ class ReviewViewSet(ModelViewSet):
 
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (IsAdmin | IsModerator | IsAuthorOrReadOnly,)
 
     def get_queryset(self):
         review = get_object_or_404(
