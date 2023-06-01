@@ -5,8 +5,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
     SET_NULL,
+    BooleanField,
     CharField,
     DateTimeField,
+    EmailField,
     ForeignKey,
     ManyToManyField,
     Model,
@@ -26,7 +28,18 @@ class User(AbstractUser):
         MODERATOR = 'moderator'
         ADMINISTRATOR = 'admin'
 
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ('email', 'username')
+
     bio = TextField(verbose_name='Биография')
+    email = EmailField(
+        verbose_name='Эл. почта',
+        max_length=254,
+        unique=True,
+        blank=False,
+        null=False,
+    )
+    is_verified = BooleanField(default=False)
     role = CharField(
         verbose_name='Роль',
         max_length=len(max(Role.values, key=len)),
@@ -100,6 +113,7 @@ class Review(Model):
     title = OneToOneField(
         to=Title,
         on_delete=CASCADE,
+        related_name='reviews',
         verbose_name='ID произведения',
     )
     text = TextField(
