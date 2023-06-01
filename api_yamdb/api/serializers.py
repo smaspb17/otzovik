@@ -1,5 +1,6 @@
 from django.db.models import Avg
 from rest_framework.serializers import (
+    CharField,
     CurrentUserDefault,
     ModelSerializer,
     SerializerMethodField,
@@ -7,7 +8,7 @@ from rest_framework.serializers import (
 )
 from rest_framework.validators import UniqueTogetherValidator
 
-from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class CategorySerializer(ModelSerializer):
@@ -26,6 +27,17 @@ class GenreSerializer(ModelSerializer):
         exclude = ('id',)
         model = Genre
         lookup_field = 'slug'
+
+
+class SignUpSerializer(ModelSerializer):
+    password = CharField(write_only=True)
+    # tokens = SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name',
+                  'username', 'email', 'password', 'tokens')
+        read_only_fields = ('id',)
 
 
 class TitleReadSerializer(ModelSerializer):
@@ -93,3 +105,19 @@ class CommentSerializer(ModelSerializer):
         model = Comment
         fields = '__all__'
         read_only_fields = ['title']
+
+
+class EmailVerificationSerializer(ModelSerializer):
+    token = CharField(max_length=555)
+
+    class Meta:
+        model = User
+        fields = ('token',)
+
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name',
+                  'username', 'email', 'password', 'tokens')
+        # read_only_fields = ('id',)

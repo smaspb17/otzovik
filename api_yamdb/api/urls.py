@@ -7,6 +7,10 @@ from .views import (
     GenreViewSet,
     ReviewViewSet,
     TitleViewSet,
+    SignUpView,
+    VerifyEmailView,
+    UserViewSet,
+    UsersViewSet,
 )
 
 app_name = 'api'
@@ -14,31 +18,35 @@ app_name = 'api'
 router_v1 = DefaultRouter()
 
 router_v1.register(
-    prefix='title',
+    prefix='titles',
     viewset=TitleViewSet,
-    basename='title',
+    basename='titles',
 )
 router_v1.register(
-    prefix='category',
+    prefix='categories',
     viewset=CategoryViewSet,
-    basename='category',
+    basename='categories',
 )
 router_v1.register(
-    prefix='genre',
+    prefix='genres',
     viewset=GenreViewSet,
-    basename='genre',
+    basename='genres',
 )
 router_v1.register(
-    prefix=r'title/(?P<title_id>[\d]+)/review',
+    prefix=r'titles/(?P<title_id>[\d]+)/reviews',
     viewset=ReviewViewSet,
-    basename='review',
+    basename='reviews',
 )
 router_v1.register(
-    prefix=r'title/(?P<title_id>[\d]+)/review/(?P<review_id>[\d]+)/comment',
+    prefix=r'titles/(?P<title_id>[\d]+)/reviews/(?P<review_id>[\d]+)/comments',
     viewset=CommentViewSet,
-    basename='comment',
+    basename='comments',
 )
 
 urlpatterns = [
-    path('v1/', include(router_v1.urls)),
+    path(route='v1/', view=include(router_v1.urls)),
+    path(route='v1/auth/signup/', view=SignUpView),
+    path(route='v1/auth/token/', view=VerifyEmailView),
+    path(route='v1/users/', view=UsersViewSet),
+    path(route='v1/users/<str:username>', view=UserViewSet),
 ]
