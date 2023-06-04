@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 
 
@@ -23,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'djoser',
     'rest_framework_simplejwt',
     'reviews',
     'api',
@@ -117,6 +119,13 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 3,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 AUTH_USER_MODEL = 'reviews.User'

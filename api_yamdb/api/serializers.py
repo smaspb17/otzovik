@@ -2,12 +2,18 @@ from django.db.models import Avg
 from rest_framework.serializers import (
     CharField,
     CurrentUserDefault,
+    EmailField,
     ModelSerializer,
+    Serializer,
     SerializerMethodField,
     SlugRelatedField,
+    ValidationError
 )
-from rest_framework.validators import UniqueTogetherValidator
-
+from rest_framework.validators import (
+    UniqueTogetherValidator,
+    UniqueValidator,
+)
+from .validators import validate_username
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
@@ -29,15 +35,24 @@ class GenreSerializer(ModelSerializer):
         lookup_field = 'slug'
 
 
-class SignUpSerializer(ModelSerializer):
-    password = CharField(write_only=True)
-    # tokens = SerializerMethodField()
+class SignUpSerializer(Serializer):
+    username = CharField(
+        required=True,
+        max_length=150,
+        validators=[validate_username, ]
+    )
+    email = EmailField(required=True, max_length=254)
 
-    class Meta:
-        model = User
-        fields = ('id', 'first_name', 'last_name',
-                  'username', 'email', 'password', 'tokens')
-        read_only_fields = ('id',)
+    def validate(self, data):
+        if User.objects.filter(username=data['username'],
+                               email=data['email']).exists():
+            return data
+        if (User.objects.filter(username=data['username']).exists()
+                or User.objects.filter(email=data['email']).exists()):
+            raise ValidationError(
+                'Пользователь с такими данными уже существует!'
+            )
+        return data
 
 
 class TitleReadSerializer(ModelSerializer):
@@ -75,36 +90,52 @@ class TitleWriteSerializer(ModelSerializer):
         model = Title
 
 
+class FromContext(object):
+    requires_context = True
+
+    def __init__(self, value_fn):
+        self.value_fn = value_fn
+
+    def __call__(self, serializer_field):
+        self.value = self.value_fn(serializer_field.context)
+        return self.value
+
+
 class ReviewSerializer(ModelSerializer):
     """Отзывы произведений"""
-
     author = SlugRelatedField(
         slug_field='username', default=CurrentUserDefault(), read_only=True
+    )
+    title = SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+        default=FromContext(
+            lambda context: context.get('view').kwargs['title_id']
+        )
     )
 
     class Meta:
         model = Review
         fields = '__all__'
         read_only_fields = ['title']
-
-    validators = [
-        UniqueTogetherValidator(
-            queryset=Review.objects.all(),
-            fields=['title', 'author'],
-            message='Нельзя оставить отзыв на одно произведение дважды',
-        )
-    ]
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=['title', 'author'],
+            )
+        ]
 
 
 class CommentSerializer(ModelSerializer):
     """Комментарии к отзывам"""
-
-    author = SlugRelatedField(slug_field='username', read_only=True)
+    author = SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
 
     class Meta:
         model = Comment
-        fields = '__all__'
-        read_only_fields = ['title']
+        fields = ('id', 'text', 'author', 'pub_date',)
 
 
 class EmailVerificationSerializer(ModelSerializer):
@@ -116,8 +147,42 @@ class EmailVerificationSerializer(ModelSerializer):
 
 
 class UserSerializer(ModelSerializer):
+    username = CharField(
+        required=True,
+        max_length=150,
+        validators=[validate_username,
+                    UniqueValidator(queryset=User.objects.all())]
+    )
+
     class Meta:
         model = User
-        fields = ('first_name', 'last_name',
-                  'username', 'email', 'password', 'tokens')
-        # read_only_fields = ('id',)
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role'
+        )
+
+
+class UserMeSerializer(ModelSerializer):
+    username = CharField(
+        required=True,
+        max_length=150,
+        validators=[validate_username,
+                    UniqueValidator(queryset=User.objects.all())]
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role'
+        )
+        read_only_fields = ('role',)
+
+
+class TokenSerializer(Serializer):
+    username = CharField(
+        required=True,
+        max_length=150,
+        validators=[validate_username, ]
+    )
+    confirmation_code = CharField(required=True)
