@@ -10,7 +10,7 @@ from .views import (
     SignUpView,
     VerifyEmailView,
     UserViewSet,
-    UsersViewSet,
+    # UsersViewSet,
 )
 
 app_name = 'api'
@@ -42,11 +42,10 @@ router_v1.register(
     viewset=CommentViewSet,
     basename='comments',
 )
+router_v1.register(r'users', UserViewSet, basename='users')
 
 urlpatterns = [
     path(route='v1/', view=include(router_v1.urls)),
-    path(route='v1/auth/signup/', view=SignUpView),
-    path(route='v1/auth/token/', view=VerifyEmailView),
-    path(route='v1/users/', view=UsersViewSet),
-    path(route='v1/users/<str:username>', view=UserViewSet),
+    path(route='v1/auth/signup/', view=SignUpView.as_view()),
+    path(route='v1/auth/token/', view=VerifyEmailView.as_view()),
 ]

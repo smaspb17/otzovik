@@ -146,5 +146,14 @@ dmypy.json
 .mypy_cache
 
 # папки со статикой и медиа
-media/
+static/
+/static/
+*/static/
 
+media/
+/media/
+*/media/
+
+# миграции
+*/migrations/*
+!*/migrations/__init__.py

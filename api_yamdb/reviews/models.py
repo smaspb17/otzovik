@@ -12,7 +12,6 @@ from django.db.models import (
     ForeignKey,
     ManyToManyField,
     Model,
-    OneToOneField,
     PositiveIntegerField,
     PositiveSmallIntegerField,
     SlugField,
@@ -29,7 +28,7 @@ class User(AbstractUser):
         ADMINISTRATOR = 'admin'
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ('email', 'username')
+    REQUIRED_FIELDS = ('email',)
 
     bio = TextField(verbose_name='Биография')
     email = EmailField(
@@ -110,7 +109,7 @@ class Title(Model):
 
 
 class Review(Model):
-    title = OneToOneField(
+    title = ForeignKey(
         to=Title,
         on_delete=CASCADE,
         related_name='reviews',
@@ -132,22 +131,16 @@ class Review(Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ['-pub_date']
+        ordering = ['id']
         constraints = [
             UniqueConstraint(fields=['author', 'title'], name='unique_review')
         ]
 
     def __str__(self):
-        return f'{self.title} ({self.pk})'
+        return self.text[:10]
 
 
 class Comment(Model):
-    title = ForeignKey(
-        to=Title,
-        on_delete=CASCADE,
-        verbose_name='ID произведения',
-        related_name='comments',
-    )
     review = ForeignKey(
         to=Review,
         on_delete=CASCADE,
