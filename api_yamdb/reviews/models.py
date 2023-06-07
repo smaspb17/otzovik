@@ -30,7 +30,11 @@ class User(AbstractUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ('email',)
 
-    bio = TextField(verbose_name='Биография')
+    bio = TextField(
+        verbose_name='Биография',
+        blank=True,
+        null=True,
+    )
     email = EmailField(
         verbose_name='Эл. почта',
         max_length=254,
