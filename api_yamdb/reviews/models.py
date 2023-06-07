@@ -32,8 +32,6 @@ class User(AbstractUser):
 
     bio = TextField(
         verbose_name='Биография',
-        blank=True,
-        null=True,
     )
     email = EmailField(
         verbose_name='Эл. почта',
