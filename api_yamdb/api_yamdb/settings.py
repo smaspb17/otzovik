@@ -131,3 +131,7 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'reviews.User'
 
 EMAIL_ADMIN = 'admin@admin.ru'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+SENDER = 'from@example.com'
