@@ -1,5 +1,3 @@
-from datetime import datetime as dt
-
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
@@ -19,6 +17,8 @@ from django.db.models import (
     TextField,
     UniqueConstraint,
 )
+
+from api.validators import current_year_validator
 
 
 class User(AbstractUser):
@@ -45,7 +45,7 @@ class User(AbstractUser):
     is_verified = BooleanField(default=False)
     role = CharField(
         verbose_name='Роль',
-        max_length=len(max(Role.values, key=len)),
+        max_length=30,
         choices=Role.choices,
         default=Role.USER,
     )
@@ -53,6 +53,14 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    @property
+    def is_admin(self):
+        return self.role == self.Role.ADMINISTRATOR
+
+    @property
+    def is_moderator(self):
+        return self.role == self.Role.MODERATOR
 
 
 class Category(Model):
@@ -83,10 +91,12 @@ class Title(Model):
     name = CharField(
         verbose_name='Название',
         max_length=256,
+        db_index=True,
     )
     year = PositiveIntegerField(
         verbose_name='Год выпуска',
-        validators=[MaxValueValidator(dt.now().year)],
+        validators=[current_year_validator],
+        db_index=True,
     )
     description = TextField(
         verbose_name='Описание',
@@ -94,6 +104,7 @@ class Title(Model):
     genre = ManyToManyField(
         to=Genre,
         verbose_name='Slug жанра',
+        db_index=True,
     )
     category = ForeignKey(
         to=Category,
@@ -102,6 +113,7 @@ class Title(Model):
         blank=True,
         null=True,
         related_name='titles',
+        db_index=True,
     )
 
     class Meta:
@@ -135,7 +147,7 @@ class Review(Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ['id']
+        ordering = ['-pub_date']
         constraints = [
             UniqueConstraint(fields=['author', 'title'], name='unique_review')
         ]
