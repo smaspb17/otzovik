@@ -14,7 +14,7 @@ Otzovik - это учебный групповой проект (3 чел.) в �
 
 ## СТЕК ТЕХНОЛОГИЙ
 
-Python 3.11, Django Rest Framework 3.14, SQLite3, django-filter, simplejwt, djoser, redoc 
+Python 3.11, Django Rest Framework 3.14, SQLite3, Django-filter, SimpleJWT, Djoser, Redoc
 
 ## ИНСТРУКЦИЯ ПО УСТАНОВКЕ (для Windows)
 
